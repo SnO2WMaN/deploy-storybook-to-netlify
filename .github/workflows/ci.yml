@@ -28,7 +28,8 @@ jobs:
           run_install: |
             - args: [--frozen-lockfile]
       - run: pnpm run storybook:build
-      - id: deploy-to-netlify
+      - name: Deploy to Netlify
+        id: deploy-to-netlify
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         run: |
@@ -38,12 +39,13 @@ jobs:
             --auth $NETLIFY_AUTH_TOKEN \
             --json \
             $([ $GITHUB_EVENT_NAME = "push" ] && echo --prod)
-          )
+          ) &&
           echo "::set-output preview_url::$(echo $result | jq -r .preview_url)"
-      - if: ${{ github.event_name == 'pull_request' && success() }}
-        uses: actions/github-script@v5
+      - name: Comment on PR
+        if: ${{ github.event_name == 'pull_request' && success() }}
         env:
           PREVIEW_URL: ${{ steps.deploy-to-netlify.outputs.deploy_url }}
+        uses: actions/github-script@v5
         with:
           script: |
             const { PREVIEW_URL } = process.env
