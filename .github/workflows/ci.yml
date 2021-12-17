@@ -33,7 +33,9 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         run: |
-          echo ::set-output name=preview_url::$(pnpx netlify deploy -d storybook-static --auth $NETLIFY_AUTH_TOKEN --json $([ "$GITHUB_EVENT_NAME" = "push" ] && echo --prod) | jq -r .deploy_url)
+          result=$(pnpx netlify deploy -d storybook-static --auth $NETLIFY_AUTH_TOKEN --json $([ "$GITHUB_EVENT_NAME" = "push" ] && echo --prod))
+          echo ::set-output name=preview_url::$(echo $result | jq -r .deploy_url)
+      - run: echo ${{ steps.deploy_to_netlify.outputs.deploy_url }}
       - name: Comment on PR
         if: ${{ github.event_name == 'pull_request' && success() }}
         env:
