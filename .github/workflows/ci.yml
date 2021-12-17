@@ -33,13 +33,17 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         run: |
-          result=$(pnpx netlify deploy -d storybook-static --auth $NETLIFY_AUTH_TOKEN --json $([ "$GITHUB_EVENT_NAME" = "push" ] && echo --prod))
-          echo ::set-output name=preview_url::$(echo $result | jq -r .deploy_url)
-      - run: echo ${{ steps.deploy_to_netlify.outputs.deploy_url }}
+          DEPLOY_COMMAND="netlify deploy -d storybook-static --auth $NETLIFY_AUTH_TOKEN --json"
+          [ "$GITHUB_EVENT_NAME" = "push" ] && DEPLOY_COMMAND+=" --prod"
+
+          RESULT=$(pnpx $DEPLOY_COMMAND)
+
+          echo "::set-output name=PREVIEW_URL::$(echo $RESULT | jq -r .deploy_url)"
+          [ "$GITHUB_EVENT_NAME" = "push" ] && echo "::set-output name=LIVE_URL::$(echo $RESULT | jq -r .url)"
       - name: Comment on PR
         if: ${{ github.event_name == 'pull_request' && success() }}
         env:
-          PREVIEW_URL: ${{ steps.deploy_to_netlify.outputs.deploy_url }}
+          PREVIEW_URL: ${{ steps.deploy_to_netlify.outputs.PREVIEW_URL }}
         uses: actions/github-script@v5
         with:
           script: |
