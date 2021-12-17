@@ -38,6 +38,10 @@ jobs:
           [ "$GITHUB_EVENT_NAME" = "push" ] && DEPLOY_COMMAND+=" --prod"
 
           RESULT=$(pnpx $DEPLOY_COMMAND)
+
+          echo $RESULT
+          echo "::set-output name=PREVIEW_URL::$(echo $RESULT | jq -r .deploy_url)"
+          [ "$GITHUB_EVENT_NAME" = "push" ] && echo "::set-output name=LIVE_URL::$(echo $RESULT | jq -r .url)"
       - name: Comment on PR
         if: ${{ github.event_name == 'pull_request' && success() }}
         env:
