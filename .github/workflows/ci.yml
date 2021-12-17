@@ -2,12 +2,15 @@ name: CI
 
 on:
   push:
+    branches:
+      - "main"
+  pull_request:
+    types:
+      - synchronize
 
 jobs:
-  deploy-storybook:
+  storybook:
     runs-on: ubuntu-latest
-    env:
-      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -26,9 +29,27 @@ jobs:
             - args: [--frozen-lockfile]
       - run: pnpm run storybook:build
       - id: deploy-to-netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         run: |
-          pnpx netlify deploy \
+          result = $(
+            pnpx netlify deploy \
             -d storybook-static \
             --auth $NETLIFY_AUTH_TOKEN \
             --json \
-            $([ $GITHUB_REF_NAME = main ] && echo --prod)
+            $([ $GITHUB_EVENT_NAME = "push" ] && echo --prod)
+          )
+          echo "::set-output preview_url::$(echo $result | jq -r .preview_url)"
+      - if: ${{ github.event_name == 'pull_request' && success() }}
+        uses: actions/github-script@v5
+        env:
+          PREVIEW_URL: ${{ steps.deploy-to-netlify.outputs.deploy_url }}
+        with:
+          script: |
+            const { PREVIEW_URL } = process.env
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `${ PREVIEW_URL }`
+            })
