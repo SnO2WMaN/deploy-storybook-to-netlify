@@ -47,5 +47,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `${ PREVIEW_URL }`
+              body: `## Storybook Preview \n ${PREVIEW_URL}`
             })
