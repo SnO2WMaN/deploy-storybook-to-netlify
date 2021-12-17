@@ -33,10 +33,10 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         run: |
-          DEPLOY_COMMAND="netlify deploy -d storybook-static --auth $NETLIFY_AUTH_TOKEN --json"
+          export DEPLOY_COMMAND="netlify deploy -d storybook-static --auth $NETLIFY_AUTH_TOKEN --json"
           [ "$GITHUB_EVENT_NAME" = "push" ] && DEPLOY_COMMAND+=" --prod"
 
-          RESULT=$(pnpx $DEPLOY_COMMAND)
+          export RESULT=$(pnpx $DEPLOY_COMMAND)
 
           echo "::set-output name=PREVIEW_URL::$(echo $RESULT | jq -r .deploy_url)"
           [ "$GITHUB_EVENT_NAME" = "push" ] && echo "::set-output name=LIVE_URL::$(echo $RESULT | jq -r .url)"
