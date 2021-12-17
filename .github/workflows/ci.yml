@@ -31,9 +31,9 @@ jobs:
       - name: Deploy to Netlify
         id: deploy_to_netlify
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.STORYBOOK_NETLIFY_AUTH_TOKEN }}
         run: |
-          DEPLOY_COMMAND="netlify deploy -d storybook-static --auth $NETLIFY_AUTH_TOKEN --json"
+          DEPLOY_COMMAND="netlify deploy -d storybook-static --auth ${{ env.NETLIFY_AUTH_TOKEN }} --json"
           [ "$GITHUB_EVENT_NAME" = "push" ] && DEPLOY_COMMAND+=" --prod"
 
           RESULT=$(pnpx $DEPLOY_COMMAND)
