@@ -35,11 +35,12 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.STORYBOOK_NETLIFY_AUTH_TOKEN }}
         run: |
           DEPLOY_COMMAND="netlify deploy -d storybook-static --json"
-          [ "$GITHUB_EVENT_NAME" = "push" ] && DEPLOY_COMMAND+=" --prod"
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then DEPLOY_COMMAND+=" --prod"; fi
 
           RESULT=$(pnpx $DEPLOY_COMMAND)
 
           echo "::set-output name=PREVIEW_URL::$(echo $RESULT | jq -r .deploy_url)"
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then echo "::set-output name=LIVE_URL::$(echo $RESULT | jq -r .url)"; fi
       - name: Comment on PR
         if: ${{ github.event_name == 'pull_request' && success() }}
         env:
