@@ -31,15 +31,16 @@ jobs:
       - name: Deploy to Netlify
         id: deploy_to_netlify
         env:
+          NETLIFY_SITE_ID: ${{ secrets.STORYBOOK_NETLIFY_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.STORYBOOK_NETLIFY_AUTH_TOKEN }}
         run: |
-          DEPLOY_COMMAND="netlify deploy -d storybook-static --auth ${{ env.NETLIFY_AUTH_TOKEN }} --json"
+          DEPLOY_COMMAND="netlify deploy -d storybook-static --json"
           [ "$GITHUB_EVENT_NAME" = "push" ] && DEPLOY_COMMAND+=" --prod"
 
           RESULT=$(pnpx $DEPLOY_COMMAND)
 
-          echo $DEPLOY_COMMAND
-          echo $RESULT
+          echo "::set-output name=PREVIEW_URL::$(echo $RESULT | jq -r .deploy_url)"
+          [ "$GITHUB_EVENT_NAME" = "push" ] && echo "::set-output name=LIVE_URL::$(echo $RESULT | jq -r .url)"
       - name: Comment on PR
         if: ${{ github.event_name == 'pull_request' && success() }}
         env:
