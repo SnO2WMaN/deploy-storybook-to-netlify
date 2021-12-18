@@ -44,3 +44,6 @@ runs:
         echo "::set-output name=preview_url::$(echo $RESULT | jq -r .deploy_url)"
         echo "::set-output name=live_url::$(echo $RESULT | jq -r .url)"
       shell: bash
+      env:
+        NETLIFY_SITE_ID: ${{ secrets.STORYBOOK_NETLIFY_SITE_ID }}
+        NETLIFY_AUTH_TOKEN: ${{ secrets.STORYBOOK_NETLIFY_AUTH_TOKEN }}
