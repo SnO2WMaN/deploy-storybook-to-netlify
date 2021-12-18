@@ -1,0 +1,29 @@
+name: "Deploy Storybook"
+description: "Deploy Storybook to Netlify"
+
+inputs:
+  production:
+    required: false
+    default: false
+    type: boolean
+
+outputs:
+  preview_url:
+    description: "Netlify Preview URL"
+    value: ${{ steps.deploy_to_netlify.outputs.preview_url }}
+  live_url:
+    description: "Netlify Live URL"
+    value: ${{ steps.deploy_to_netlify.outputs.live_url }}
+
+runs:
+  using: composite
+  steps:
+    - id: deploy_to_netlify
+      shell: bash
+      run: |
+        DEPLOY_COMMAND="netlify deploy -d storybook-static --json --prod"
+
+        RESULT=$(pnpx $DEPLOY_COMMAND)
+
+        echo "::set-output name=preview_url::$(echo $RESULT | jq -r .deploy_url)"
+        echo "::set-output name=live_url::$(echo $RESULT | jq -r .url)"
