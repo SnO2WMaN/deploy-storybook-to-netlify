@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    uses: ./.github/workflows/storybook.yml@deploy_to_netlify
+    uses: SnO2WMaN-HQ/deploy-storybook-to-netlify/.github/workflows/storybook.yml@deploy_to_netlify
     with:
       production: true
 
