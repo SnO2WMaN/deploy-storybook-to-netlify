@@ -1,0 +1,19 @@
+name: Storybook Production
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/storybook.yml@deploy_to_netlify
+    with:
+      production: true
+
+  environment:
+    runs-on: ubuntu-latest
+    needs: deploy
+    environment:
+      name: Storybook Production
+      url: needs.deploy.outputs.live_url

@@ -1,0 +1,52 @@
+name: Storybook Deployment
+
+on:
+  workflow_call:
+    inputs:
+      production:
+        required: true
+        type: boolean
+    outputs:
+      preview_url:
+        description: "Netlify Preview URL"
+        value: ${{ jobs.deploy_to_netlify.outputs.preview_url }}
+      live_url:
+        description: "Netlify Live URL"
+        value: ${{ jobs.deploy_to_netlify.outputs.live_url }}
+
+jobs:
+  deploy_to_netlify:
+    name: Deploy to Netlify
+    runs-on: ubuntu-latest
+    outputs:
+      preview_url: ${{ steps.deploy.outputs.preview_url }}
+      live_url: ${{ steps.deploy.outputs.live_url }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+      - uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.24.1
+          run_install: |
+            - args: [--frozen-lockfile]
+      - run: pnpm run storybook:build
+      - name: Deploy
+        id: deploy
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.STORYBOOK_NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.STORYBOOK_NETLIFY_AUTH_TOKEN }}
+        run: |
+          DEPLOY_COMMAND="netlify deploy -d storybook-static --json --prod"
+
+          RESULT=$(pnpx $DEPLOY_COMMAND)
+
+          echo "::set-output name=preview_url::$(echo $RESULT | jq -r .deploy_url)"
+          echo "::set-output name=live_url::$(echo $RESULT | jq -r .url)"
