@@ -33,7 +33,7 @@ jobs:
         uses: actions/github-script@v5
         with:
           script: |
-            const { PREVIEW_URL } = process.env;
+            const { PREVIEW_URL, LOGS_URL } = process.env;
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
