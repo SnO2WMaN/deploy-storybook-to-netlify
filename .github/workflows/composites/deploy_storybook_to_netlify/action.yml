@@ -1,4 +1,4 @@
-name: "Deploy Storybook"
+name: "Deploy Storybook to Netlify"
 description: "Deploy Storybook to Netlify"
 
 inputs:
