@@ -41,3 +41,22 @@ jobs:
           production: "true"
           netlify_site_id: ${{ secrets.STORYBOOK_NETLIFY_SITE_ID }}
           netlify_auth_token: ${{ secrets.STORYBOOK_NETLIFY_AUTH_TOKEN }}
+      - name: Comment on PR
+        if: ${{ success() }}
+        env:
+          PREVIEW_URL: ${{ steps.deploy.outputs.live_url }}
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const { PREVIEW_URL } = process.env;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `
+                    ## Storybook Preview
+                    ||URL|
+                    |-|:-|
+                    |Preview|${PREVIEW_URL}
+                    `,
+            });
