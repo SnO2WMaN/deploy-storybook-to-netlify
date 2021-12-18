@@ -28,7 +28,7 @@ jobs:
       - name: Comment on PR
         if: ${{ success() }}
         env:
-          PREVIEW_URL: ${{ steps.deploy.outputs.live_url }}
+          PREVIEW_URL: ${{ steps.deploy.outputs.preview_url }}
         uses: actions/github-script@v5
         with:
           script: |
