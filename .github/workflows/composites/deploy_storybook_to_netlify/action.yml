@@ -20,6 +20,9 @@ outputs:
   live_url:
     description: "Netlify Live URL"
     value: ${{ steps.deploy_to_netlify.outputs.live_url }}
+  logs_url:
+    description: "Netlify Logs URL"
+    value: ${{ steps.deploy_to_netlify.outputs.live_url }}
 
 runs:
   using: composite
@@ -47,11 +50,12 @@ runs:
         NETLIFY_SITE_ID: ${{ inputs.netlify_site_id }}
         NETLIFY_AUTH_TOKEN: ${{ inputs.netlify_auth_token }}
       run: |
-        DEPLOY_COMMAND="netlify deploy -d storybook-static --json --prod"
+        DEPLOY_COMMAND="netlify deploy -d storybook-static --json"
         if [ "$PRODUCTION" = "true" ]; then DEPLOY_COMMAND+=" --prod"; fi
 
         RESULT=$(pnpx $DEPLOY_COMMAND)
 
         echo "::set-output name=preview_url::$(echo $RESULT | jq -r .deploy_url)"
+        echo "::set-output name=logs_url::$(echo $RESULT | jq -r .logs)"
         echo "::set-output name=live_url::$(echo $RESULT | jq -r .url)"
       shell: bash
