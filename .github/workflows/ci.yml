@@ -6,7 +6,9 @@ on:
       - "main"
   pull_request:
     types:
+      - opened
       - synchronize
+      - reopened
 
 jobs:
   storybook-preview:
@@ -23,6 +25,21 @@ jobs:
         with:
           netlify_site_id: ${{ secrets.STORYBOOK_NETLIFY_SITE_ID }}
           netlify_auth_token: ${{ secrets.STORYBOOK_NETLIFY_AUTH_TOKEN }}
+      - name: Comment on PR
+        if: ${{ success() }}
+        env:
+          PREVIEW_URL: ${{ steps.deploy.outputs.preview_url }}
+          LOGS_URL: ${{ steps.deploy.outputs.logs_url }}
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const { PREVIEW_URL, LOGS_URL } = process.env;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Storybook Preview\n||URL|\n|-|:-|\n|Preview|${PREVIEW_URL}\n|Logs|${LOGS_URL}`,
+            });
 
   storybook-production:
     name: Storybook Production
