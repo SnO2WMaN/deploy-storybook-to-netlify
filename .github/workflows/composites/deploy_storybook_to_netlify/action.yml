@@ -22,7 +22,7 @@ outputs:
     value: ${{ steps.deploy_to_netlify.outputs.live_url }}
   logs_url:
     description: "Netlify Logs URL"
-    value: ${{ steps.deploy_to_netlify.outputs.live_url }}
+    value: ${{ steps.deploy_to_netlify.outputs.logs }}
 
 runs:
   using: composite
