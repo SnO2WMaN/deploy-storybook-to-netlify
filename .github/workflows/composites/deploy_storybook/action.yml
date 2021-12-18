@@ -3,9 +3,9 @@ description: "Deploy Storybook to Netlify"
 
 inputs:
   production:
+    description: "Is production"
     required: false
-    default: false
-    type: boolean
+    default: "false"
 
 outputs:
   preview_url:
