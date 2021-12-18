@@ -6,6 +6,12 @@ inputs:
     description: "Is production"
     required: false
     default: "false"
+  netlify_site_id:
+    description: "Netlify site ID"
+    required: true
+  netlify_auth_token:
+    description: "Netlify auth token"
+    required: true
 
 outputs:
   preview_url:
@@ -36,6 +42,9 @@ runs:
     - run: pnpm run storybook:build
       shell: bash
     - id: deploy_to_netlify
+      env:
+        NETLIFY_SITE_ID: ${{ inputs.netlify_site_id }}
+        NETLIFY_AUTH_TOKEN: ${{ inputs.netlify_auth_token }}
       run: |
         DEPLOY_COMMAND="netlify deploy -d storybook-static --json --prod"
 
@@ -44,6 +53,3 @@ runs:
         echo "::set-output name=preview_url::$(echo $RESULT | jq -r .deploy_url)"
         echo "::set-output name=live_url::$(echo $RESULT | jq -r .url)"
       shell: bash
-      env:
-        NETLIFY_SITE_ID: ${{ secrets.STORYBOOK_NETLIFY_SITE_ID }}
-        NETLIFY_AUTH_TOKEN: ${{ secrets.STORYBOOK_NETLIFY_AUTH_TOKEN }}

@@ -15,4 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: deploy
-        uses: ./.github/workflows/composites/deploy_storybook
+        uses: ./.github/workflows/composites/deploy_storybook_to_netlify
+        with:
+          netlify_site_id: ${{ secrets.STORYBOOK_NETLIFY_SITE_ID }}
+          netlify_auth_token: ${{ secrets.STORYBOOK_NETLIFY_AUTH_TOKEN }}
