@@ -34,8 +34,8 @@ runs:
         run_install: |
           - args: [--frozen-lockfile]
     - run: pnpm run storybook:build
-    - id: deploy_to_netlify
       shell: bash
+    - id: deploy_to_netlify
       run: |
         DEPLOY_COMMAND="netlify deploy -d storybook-static --json --prod"
 
@@ -43,3 +43,4 @@ runs:
 
         echo "::set-output name=preview_url::$(echo $RESULT | jq -r .deploy_url)"
         echo "::set-output name=live_url::$(echo $RESULT | jq -r .url)"
+      shell: bash
