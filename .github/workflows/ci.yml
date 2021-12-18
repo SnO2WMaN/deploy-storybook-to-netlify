@@ -6,7 +6,9 @@ on:
       - "main"
   pull_request:
     types:
+      - opened
       - synchronize
+      - reopened
 
 jobs:
   storybook-preview:
