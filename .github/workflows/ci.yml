@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    types:
+      - synchronize
+
+jobs:
+  storybook-preview:
+    name: Storybook Preview
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: Storybook Preview
+      url: ${{ steps.deploy.outputs.preview_url }}
+    steps:
+      - uses: actions/checkout@v2
+      - id: deploy
+        uses: ./.github/workflows/composites/deploy_storybook_to_netlify
+        with:
+          netlify_site_id: ${{ secrets.STORYBOOK_NETLIFY_SITE_ID }}
+          netlify_auth_token: ${{ secrets.STORYBOOK_NETLIFY_AUTH_TOKEN }}
+
+  storybook-production:
+    name: Storybook Production
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: Storybook Production
+      url: ${{ steps.deploy.outputs.live_url }}
+    steps:
+      - uses: actions/checkout@v2
+      - id: deploy
+        uses: ./.github/workflows/composites/deploy_storybook_to_netlify
+        with:
+          production: "true"
+          netlify_site_id: ${{ secrets.STORYBOOK_NETLIFY_SITE_ID }}
+          netlify_auth_token: ${{ secrets.STORYBOOK_NETLIFY_AUTH_TOKEN }}

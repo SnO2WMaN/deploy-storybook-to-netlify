@@ -43,10 +43,12 @@ runs:
       shell: bash
     - id: deploy_to_netlify
       env:
+        PRODUCTION: ${{ inputs.production == "true" }}
         NETLIFY_SITE_ID: ${{ inputs.netlify_site_id }}
         NETLIFY_AUTH_TOKEN: ${{ inputs.netlify_auth_token }}
       run: |
         DEPLOY_COMMAND="netlify deploy -d storybook-static --json --prod"
+        if [ "$PRODUCTION" = "true" ]; then DEPLOY_COMMAND+=" --prod"; fi
 
         RESULT=$(pnpx $DEPLOY_COMMAND)
 
